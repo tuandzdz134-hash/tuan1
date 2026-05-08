@@ -1,0 +1,193 @@
+================================================================================
+PROTEUS CIRCUIT DESIGN FOR 7-SEGMENT LED WITH PIC16F877A AND DS1307
+================================================================================
+
+COMPONENT LIST & SCHEMATIC GUIDE:
+This document provides the detailed schematic for creating the circuit in Proteus.
+
+================================================================================
+1. MICROCONTROLLER AND POWER SUPPLY
+================================================================================
+
+PIC16F877A:
+- Pin 1 (MCLR): Connect to +5V through 10kΩ resistor (with 0.1µF to GND)
+- Pin 11 (VSS): Ground
+- Pin 12 (VSS): Ground
+- Pin 32 (VDD): +5V
+- Pin 20 (VSS): Ground
+
+4MHz Crystal Oscillator:
+- Connect between OSC1 (Pin 13) and OSC2 (Pin 14)
+- Add 22pF capacitors from each pin to ground
+
+Power Supply:
+- VDD: +5V regulated supply
+- VSS/GND: Ground (common to all circuits)
+
+================================================================================
+2. 7-SEGMENT LED DISPLAY CONNECTIONS
+================================================================================
+
+Display Type: 4x Common Anode 7-segment LEDs
+
+PORTA (Segments A-G):
+- RA0 → 220Ω resistor → Segment A (all 4 digits in parallel)
+- RA1 → 220Ω resistor → Segment B (all 4 digits in parallel)
+- RA2 → 220Ω resistor → Segment C (all 4 digits in parallel)
+- RA3 → 220Ω resistor → Segment D (all 4 digits in parallel)
+- RA4 → 220Ω resistor → Segment E (all 4 digits in parallel)
+- RA5 → 220Ω resistor → Segment F (all 4 digits in parallel)
+- RA6 → 220Ω resistor → Segment G (all 4 digits in parallel)
+- RA7 → 220Ω resistor → Decimal Point (all 4 digits in parallel)
+
+Digit Common Anode Control:
+- Digit 1 Common Anode → BC557 base (via 10kΩ) ← RB0
+- Digit 2 Common Anode → BC557 base (via 10kΩ) ← RB1
+- Digit 3 Common Anode → BC557 base (via 10kΩ) ← RB2
+- Digit 4 Common Anode → BC557 base (via 10kΩ) ← RB3
+
+BC557 Configuration (for each digit):
+- Collector: +5V
+- Emitter: Common Anode of LED digit
+- Base: 10kΩ resistor from PIC pin
+
+Wiring Summary:
+- Each segment line from PIC (220Ω) connects to all 4 digit segments in parallel
+- Each digit's common anode controlled by separate BC557 transistor
+- BC557 controlled by RB0-RB3 through 10kΩ resistors
+
+================================================================================
+3. DS1307 RTC MODULE
+================================================================================
+
+DS1307 I2C Interface:
+- VCC: +5V
+- GND: Ground
+- SCL: RC3 (with 10kΩ pull-up to +5V)
+- SDA: RC4 (with 10kΩ pull-up to +5V)
+
+32.768kHz Crystal:
+- Connect between X1 and X2 pins of DS1307
+- Add 20pF capacitors from each pin to ground
+
+Battery Backup (Optional):
+- VBAT: 3V backup battery (for keeping time when powered off)
+- Typically CR2032 with 10kΩ resistor in series
+
+================================================================================
+4. PUSH BUTTON CONNECTIONS
+================================================================================
+
+Button Configuration (Active LOW):
+
+UP Button:
+- One side: +5V
+- Other side: 10kΩ pull-down resistor → RB4
+- Ground on the other side of pull-down resistor
+
+DOWN Button:
+- One side: +5V
+- Other side: 10kΩ pull-down resistor → RB5
+- Ground on the other side of pull-down resistor
+
+SET Button:
+- One side: +5V
+- Other side: 10kΩ pull-down resistor → RB6
+- Ground on the other side of pull-down resistor
+
+RESET Button:
+- One side: +5V
+- Other side: 10kΩ pull-down resistor → RB7
+- Ground on the other side of pull-down resistor
+
+Debouncing (Optional):
+- Add 0.1µF capacitor across each button terminals for debouncing
+
+================================================================================
+5. COMPLETE PIN MAPPING
+================================================================================
+
+PIC16F877A Pinout:
+╔════════════════════════════════════════╗
+║          PIC16F877A                    ║
+║  MCLR (1)  ┌─────────────────┐ VSS(20)║
+║  RA0/AN0(2)│                 │ RB7/INT(33)
+║  RA1/AN1(3)│   PIC16F877A    │ RB6(32)
+║  RA2/AN2(4)│                 │ RB5(31)
+║  RA3/AN3(5)│  40-pin DIP     │ RB4(30)
+║  RA4/T0CKI(6)               │ RB3(29)
+║  RA5/AN4(7)│                 │ RB2(28)
+║  RE0/RD(8) │                 │ RB1(27)
+║  RE1/WR(9) │                 │ RB0(26)
+║  RE2/CS(10)│                 │ VSS(25)
+║  VSS(11)   │                 │ VDD(24)
+║  OSC1(13)  │                 │ VSS(23)
+║  OSC2(14)  │                 │ RC7/RX(22)
+║  VSS(15)   │                 │ RC6/TX(21)
+║  VDD(16)   │                 │ RC5(20)
+║  RC0(17)   │                 │ RC4/SDA(19)
+║  RC1(18)   │                 │ RC3/SCL(18)
+╚════════════════════════════════════════╝
+
+PORT A (Segments):
+- RA0-RA7: Segment outputs (a,b,c,d,e,f,g,dp)
+
+PORT B (Digit Control & Buttons):
+- RB0-RB3: Digit selection (to BC557 bases)
+- RB4-RB7: Button inputs (UP, DOWN, SET, RESET)
+
+PORT C (I2C):
+- RC3: SCL (to DS1307 with 10kΩ pull-up)
+- RC4: SDA (to DS1307 with 10kΩ pull-up)
+
+================================================================================
+6. PROTEUS SCHEMATIC CREATION STEPS
+================================================================================
+
+1. Place Components:
+   - PIC16F877A (DIP40)
+   - 4x 7-segment common anode LED displays
+   - 4x BC557 transistors
+   - 1x DS1307 RTC module
+   - 1x 4MHz crystal
+   - 1x 32.768kHz crystal
+   - 4x Push buttons
+   - Resistors: 28x 220Ω (segments), 18x 10kΩ, 1x pull-up for MCLR
+   - Capacitors: 22pF (crystal), 20pF (RTC crystal), 0.1µF (decoupling)
+
+2. Connect Power:
+   - All VDD to +5V
+   - All VSS/GND to ground
+
+3. Connect Crystals:
+   - 4MHz between OSC1 and OSC2
+   - 32.768kHz between DS1307 X1 and X2
+
+4. Connect I2C:
+   - RC3 to DS1307 SCL with 10kΩ pull-up
+   - RC4 to DS1307 SDA with 10kΩ pull-up
+
+5. Connect Display:
+   - Each segment (a-g) from PORTA through 220Ω to all digit segments in parallel
+   - Each digit common anode through BC557 from RB0-RB3
+
+6. Connect Buttons:
+   - 4 buttons to RB4-RB7 with pull-down resistors
+
+7. Program PIC16F877A:
+   - Load compiled .hex file from CCS compiler
+
+8. Run Simulation:
+   - Click Play to start simulation
+   - Press virtual buttons to test functionality
+   - Observe time display on 7-segment LEDs
+
+================================================================================
+NOTES:
+- All connections shown are for common anode display configuration
+- BC557 transistors provide high-side switching for digit control
+- I2C pull-up resistors are critical for soft open-drain communication
+- Crystal loading capacitors should match crystal specifications
+- Simulation may require setting initial DS1307 time registers
+
+================================================================================
